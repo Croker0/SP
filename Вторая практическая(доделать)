@@ -1,0 +1,74 @@
+СОЗДАНИЕ КЛАССА НА PYTHON 
+class Animals: #создаём класс
+    def __init__(self,name,location,year): #создаём обязательный конструктор класса
+        self.name = name
+        self.location = location
+        self.year = year
+    def info(self): 
+        print(f"Название: {self.name}"
+        f"\nМестоположение:{self.location}"
+        f"\nВозраст:{self.year}")
+        
+class Monkey(Animals): #создаём подкласс
+    def __init__(self,name,location,year,sex):
+        super().__init__(name,location,year) #передаём значения из родительского класса
+        self.sex = sex
+    def info(self):
+        print(f"Обезьяна: {self.name}"
+        f"\nМестоположение: {self.location}"
+        f"\nВозраст:{self.year}"
+        f"\nПол: {self.sex}") 
+Monkey = Monkey("Читос", "Африка", 3, "Мужской")
+(Monkey.info())
+
+
+
+СОЗДАНИЕ КЛАССА НА С#
+using System;
+class Animals //создаём родительский класс
+{
+    public string Name;
+    public string Location;
+    public int Year;
+
+    public Animals(string name, string location, int year) //создаём конструктор
+    {
+        Name = name;
+        Location = location;
+        Year = year;
+    }
+
+    public virtual void Info() //вывод информации в консоль
+    {
+        Console.WriteLine(
+        "Название: " + Name +
+        ", Местоположение: " + Location +
+        ", Возраст: " + Year );
+    }
+
+}
+class Monkey : Animals //наследуем из класса Animals
+{
+    public string Sex;
+    public Monkey(string name, string location, int year, string sex) : base(name, location, year)
+    {
+        Sex = sex;
+    }
+
+    public override void Info() //переопределяем метод
+    {
+        Console.WriteLine(
+            "Обезьяна: " + Name +
+            "\nМестоположение: " + Location +
+            "\nВозраст: " + Year +
+            "\nПол: " + Sex);
+    }
+}
+class Program
+{
+    static void Main()
+    {
+        Monkey monkey = new Monkey("Читос", "Африка", 3, "Мужской");
+        monkey.Info();
+    }
+}
