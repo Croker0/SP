@@ -12,7 +12,9 @@ print(list_1[0:4]) #выводим список в определённом ди
 list_1.append(9) #добавляем в конец списка значение
 print(list_1)
 
-list_1.insert(5,11) #добавляем в заданную позицию значение
+mid_index = len(list_1) // 2 #добавляем значение в средениу списка
+print(mid_index)
+list_1.insert(mid_index, 11)
 print(list_1)
 
 print(list_1.count(2)) #считаем количество орпеделённого значения
