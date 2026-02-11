@@ -14,12 +14,15 @@ class Monkey(Animals): #создаём подкласс
         super().__init__(name,location,year) #передаём значения из родительского класса
         self.sex = sex
     def info(self):
+        # определяем статус возраста: старая если больше 10 лет, иначе молодая
+        status = "старая" if self.year > 10 else "молодая"
         print(f"Обезьяна: {self.name}"
         f"\nМестоположение: {self.location}"
-        f"\nВозраст:{self.year}"
+        f"\nВозраст:{self.year} ({status})"
         f"\nПол: {self.sex}") 
-Monkey = Monkey("Читос", "Африка", 3, "Мужской")
-(Monkey.info())
+
+monkey = Monkey("Читос", "Африка", 3, "Мужской")
+monkey.info()
 
 
 
@@ -57,10 +60,12 @@ class Monkey : Animals //наследуем из класса Animals
 
     public override void Info() //переопределяем метод
     {
+        // определяем статус возраста: старая если больше 10 лет, иначе молодая
+        string status = (Year > 10) ? "старая" : "молодая";
         Console.WriteLine(
             "Обезьяна: " + Name +
             "\nМестоположение: " + Location +
-            "\nВозраст: " + Year +
+            "\nВозраст: " + Year + " (" + status + ")" +
             "\nПол: " + Sex);
     }
 }
