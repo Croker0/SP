@@ -1,0 +1,46 @@
+С#
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Office.Interop.Excel;
+namespace Excelttt
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
+
+            if (excelApp == null)
+            {
+                Console.WriteLine("Excel isnt installed!");
+                return;
+            }
+
+            Workbook excelbook = excelApp.Workbooks.Open(@"D:\readExample.xlsx");
+            _Worksheet excelSheet = excelbook.Sheets[1];
+            Range excelRange = excelSheet.UsedRange;
+
+            int rows = excelRange.Rows.Count;
+            int cols = excelRange.Columns.Count;
+
+            for (int i = 1; i <= rows; i++)
+            {
+                Console.Write("\r\n");
+                for (int j = 1; j <= cols; j++)
+                {
+                    if (excelRange.Cells[i, j] != null && excelRange.Cells[i, j].Value2 != null)
+                        Console.Write(excelRange.Cells[i, j].Value2.ToString() + "\t");
+                }
+            }
+
+            excelApp.Quit();
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
+            Console.ReadLine();
+
+        }
+    }
+}
