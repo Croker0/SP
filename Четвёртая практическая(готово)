@@ -1,0 +1,20 @@
+// все запущенные процессы
+using System.Diagnostics;
+
+foreach (Process process in Process.GetProcesses())
+{
+    Console.WriteLine($"ID: {process.Id} Name: {process.ProcessName}");
+}
+
+// все потоки процесса Vs
+Process proc = Process.GetProcessesByName("devenv")[0];
+
+ProcessThreadCollection processThreads = proc.Threads;
+
+foreach (ProcessThread thread in processThreads)
+{
+    Console.WriteLine($"ThreadId: {thread.Id}");
+}
+
+Process.Start(@"mspaint.exe");
+Process.Start(@"C:\Program Files\Google\Chrome\Application\chrome");
