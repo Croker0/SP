@@ -1,28 +1,25 @@
 С#
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Office.Interop.Excel;
+using Excel = Microsoft.Office.Interop.Excel; // Добавьте этот псевдоним
+
 namespace Excelttt
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
+            Excel.Application excelApp = new Excel.Application();
 
             if (excelApp == null)
             {
-                Console.WriteLine("Excel isnt installed!");
+                Console.WriteLine("Excel isn't installed!");
                 return;
             }
 
-            Workbook excelbook = excelApp.Workbooks.Open(@"D:\readExample.xlsx");
-            _Worksheet excelSheet = excelbook.Sheets[1];
-            Range excelRange = excelSheet.UsedRange;
+            Excel.Workbook excelbook = excelApp.Workbooks.Open(@"C:\Users\prepod\Desktop\Rabota3\Rab3.xlsx");
+            Excel._Worksheet excelSheet = excelbook.Sheets[1];
+            Excel.Range excelRange = excelSheet.UsedRange; // Теперь всё работает
 
             int rows = excelRange.Rows.Count;
             int cols = excelRange.Columns.Count;
@@ -40,7 +37,6 @@ namespace Excelttt
             excelApp.Quit();
             System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
             Console.ReadLine();
-
         }
     }
 }
