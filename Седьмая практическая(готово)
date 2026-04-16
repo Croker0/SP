@@ -1,0 +1,208 @@
+ASP.NET:
+
+using System.Text.Json;
+
+int id = 1;
+
+// Список минимум из 10 аргументов, некоторые повторяются
+List<Person> users = new List<Person>
+{
+    new() { Id = id++, Name = "Tom", Age = 25 },
+    new() { Id = id++, Name = "Bob", Age = 30 },
+    new() { Id = id++, Name = "Alice", Age = 22 },
+    new() { Id = id++, Name = "Tom", Age = 28 },      // повторяющееся имя Tom
+    new() { Id = id++, Name = "David", Age = 35 },
+    new() { Id = id++, Name = "Emma", Age = 27 },
+    new() { Id = id++, Name = "Bob", Age = 33 },      // повторяющееся имя Bob
+    new() { Id = id++, Name = "Sophia", Age = 26 },
+    new() { Id = id++, Name = "Tom", Age = 29 },      // повторяющееся имя Tom
+    new() { Id = id++, Name = "Oliver", Age = 31 }
+};
+
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+// GET: получение всех пользователей
+app.MapGet("/api/users", () => users);
+
+// GET: получение пользователя по id
+app.MapGet("/api/users/{id}", (int id) =>
+{
+    Person? user = users.FirstOrDefault(u => u.Id == id);
+    if (user == null) return Results.NotFound(new { message = "Пользователь не найден" });
+    return Results.Json(user);
+});
+
+// DELETE: удаление пользователя
+app.MapDelete("/api/users/{id}", (int id) =>
+{
+    Person? user = users.FirstOrDefault(u => u.Id == id);
+    if (user == null) return Results.NotFound(new { message = "Пользователь не найден" });
+    users.Remove(user);
+    return Results.Json(user);
+});
+
+// POST: добавление пользователя
+app.MapPost("/api/users", (Person user) =>
+{
+    user.Id = id++;
+    users.Add(user);
+    return user;
+});
+
+// PUT: изменение пользователя
+app.MapPut("/api/users", (Person userData) =>
+{
+    var user = users.FirstOrDefault(u => u.Id == userData.Id);
+    if (user == null) return Results.NotFound(new { message = "Пользователь не найден" });
+    user.Age = userData.Age;
+    user.Name = userData.Name;
+    return Results.Json(user);
+});
+
+app.Run();
+
+public class Person
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+}
+
+
+
+
+
+
+Program.cs:
+
+using System.Net.Http.Json;
+using System.Text.Json;
+
+class Program
+{
+    static HttpClient httpClient = new HttpClient();
+    static string baseUrl = "https://localhost:7105"; // Замените на ваш URL
+
+    static async Task Main()
+    {
+        Console.WriteLine("=== ЛАБОРАТОРНАЯ РАБОТА ===\n");
+
+        try
+        {
+            // 1. Получаем список пользователей
+            List<Person>? users = await httpClient.GetFromJsonAsync<List<Person>>($"{baseUrl}/api/users");
+
+            if (users == null)
+            {
+                Console.WriteLine("Не удалось получить список пользователей");
+                return;
+            }
+
+            Console.WriteLine("1. Исходный список пользователей:");
+            PrintUsers(users);
+
+            // 2. Вывести предпоследний элемент и несколько элементов по выбору с помощью индекса
+            Console.WriteLine("\n2. Элементы по индексам:");
+            if (users.Count >= 2)
+            {
+                Console.WriteLine($"   - Предпоследний элемент: {users[users.Count - 2].Name} (Id: {users[users.Count - 2].Id})");
+            }
+            Console.WriteLine($"   - Элемент с индексом 2: {users[2].Name}");
+            Console.WriteLine($"   - Элемент с индексом 5: {users[5].Name}");
+            Console.WriteLine($"   - Элемент с индексом 7: {users[7].Name}");
+
+            // 3. Изменить элемент в определенной позиции (индекс 3)
+            Console.WriteLine("\n3. Изменение элемента на позиции 3 (индекс 3):");
+            Console.WriteLine($"   - До изменения: {users[3].Name} ({users[3].Age} лет)");
+
+            var updatedPerson = new Person { Id = users[3].Id, Name = "Michael", Age = 40 };
+            using var putResponse = await httpClient.PutAsJsonAsync($"{baseUrl}/api/users", updatedPerson);
+
+            if (putResponse.IsSuccessStatusCode)
+            {
+                Person? updated = await putResponse.Content.ReadFromJsonAsync<Person>();
+                if (updated != null)
+                {
+                    users[3] = updated;
+                    Console.WriteLine($"   - После изменения: {users[3].Name} ({users[3].Age} лет)");
+                }
+            }
+
+            // 4. Вывести элементы в диапазоне
+            Console.WriteLine("\n4. Элементы в диапазоне [2:6]:");
+            for (int i = 2; i <= 6 && i < users.Count; i++)
+            {
+                Console.WriteLine($"   - {users[i].Name} ({users[i].Age} лет)");
+            }
+
+            // 5. Добавить элемент в конец списка
+            Console.WriteLine("\n5. Добавление элемента в конец списка:");
+            var newUser = new Person { Name = "William", Age = 45 };
+            using var postResponse = await httpClient.PostAsJsonAsync($"{baseUrl}/api/users", newUser);
+            Person? addedUser = await postResponse.Content.ReadFromJsonAsync<Person>();
+
+            if (addedUser != null)
+            {
+                users.Add(addedUser);
+                Console.WriteLine($"   Добавлен: {addedUser.Name} (Id: {addedUser.Id}, {addedUser.Age} лет)");
+            }
+
+            // 6. Добавить элемент в середину списка
+            Console.WriteLine("\n6. Добавление элемента в середину списка:");
+            var midUser = new Person { Name = "Jessica", Age = 29 };
+            using var postMidResponse = await httpClient.PostAsJsonAsync($"{baseUrl}/api/users", midUser);
+            Person? addedMidUser = await postMidResponse.Content.ReadFromJsonAsync<Person>();
+
+            if (addedMidUser != null)
+            {
+                users.Insert(5, addedMidUser);
+                Console.WriteLine($"   Вставлен: {addedMidUser.Name} на позицию 5");
+            }
+
+            // 7. Подсчитать количество элементов
+            Console.WriteLine("\n7. Подсчёт количества элементов:");
+            int tomCount = users.Count(u => u.Name == "Tom");
+            int bobCount = users.Count(u => u.Name == "Bob");
+            Console.WriteLine($"   - Количество 'Tom': {tomCount}");
+            Console.WriteLine($"   - Количество 'Bob': {bobCount}");
+
+            // 8. Скопировать список
+            Console.WriteLine("\n8. Копирование списка:");
+            string json = JsonSerializer.Serialize(users);
+            List<Person>? copiedUsers = JsonSerializer.Deserialize<List<Person>>(json);
+
+            if (copiedUsers != null && copiedUsers.Any())
+            {
+                Console.WriteLine($"   Оригинал[0]: {users[0].Name} ({users[0].Age} лет)");
+                Console.WriteLine($"   Копия[0]: {copiedUsers[0].Name} ({copiedUsers[0].Age} лет)");
+
+                copiedUsers[0].Name = "CHANGED_NAME";
+                copiedUsers[0].Age = 99;
+
+                Console.WriteLine($"\n   После изменения копии:");
+                Console.WriteLine($"   Оригинал[0]: {users[0].Name} ({users[0].Age} лет)");
+                Console.WriteLine($"   Копия[0]: {copiedUsers[0].Name} ({copiedUsers[0].Age} лет)");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+    }
+
+    static void PrintUsers(List<Person> users)
+    {
+        foreach (var user in users)
+        {
+            Console.WriteLine($"   Id: {user.Id,-3} | Имя: {user.Name,-10} | Возраст: {user.Age}");
+        }
+    }
+}
+
+public class Person
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+}
